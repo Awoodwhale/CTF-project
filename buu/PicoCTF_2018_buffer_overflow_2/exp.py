@@ -10,8 +10,6 @@ from pwn import *
 from LibcSearcher import *
 import sys, subprocess, warnings, os
 
-from pwnlib.term.term import put
-
 def ret2libc(addr,func,binary=null):
     libc         = LibcSearcher(func,addr)               if binary == null else binary
     libc.address = addr - libc.dump(func)                if binary == null else addr-libc.sym[func]
