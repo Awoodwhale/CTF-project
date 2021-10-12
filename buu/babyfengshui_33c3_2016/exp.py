@@ -27,7 +27,7 @@ def hack(pwn):
         try:
             times += 1
             clear()
-            info(f'time ================> {times}')
+            info(f'time --> {times}')
             pwn()
         except:
             io.close()
